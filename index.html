@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="icon" type="image/png" href="images/triforce.png">
+    <link rel="apple-touch-icon" href="images/triforce.png"/>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+    <title>The Legend of Zelda</title>
+    <link href='http://fonts.googleapis.com/css?family=Press+Start+2P' rel='stylesheet' type='text/css'>
+    <script src="/lib/jquery/jquery.min.js"></script>
+    <script src="/lib/jquery/jquery.mobile.custom.min.js"></script>
+    <script src="/zelda/jquery.timer.js"></script>
+    <script src="/lib/underscore/underscore-min.js"></script>
+    <script type="text/javascript" src="movement.js"></script>
+    <script type="text/javascript" src="zelda.js"></script>
+    <script type="text/javascript" src="output.min.js"></script>
+</head>
+<body>
+<style>
+    * {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    html, body {
+        padding: 0;
+        margin: 0;
+    }
+
+    .text {
+        color: white;
+        font-family: 'Press Start 2P', cursive;
+        font-size: 8px;
+    }
+
+    #cave-text {
+        white-space: pre-line;
+        position: absolute;
+        top: 95px;
+        left: 34px;
+        width: 186px;
+        text-align: center;
+    }
+
+    #rupees {
+        position: absolute;
+        top: 16px;
+        left: 96px;
+    }
+
+    #keys {
+        position: absolute;
+        top: 31px;
+        left: 96px;
+    }
+
+    #bombs {
+        position: absolute;
+        top: 40px;
+        left: 96px;
+    }
+
+    #menu {
+        position: absolute;
+        background-color: black;
+    }
+
+    #zelda {
+        position: absolute;
+        top: 56px;
+        height: 176px;
+        width: 256px;
+        background: url("images/overworld_map.png");
+        background-repeat: no-repeat;
+        background-position-x: -1792px; /* 256px x-axis change */
+        background-position-y: -1232px; /* 176px y-axis change */
+        background-color: black;
+        /* 16 columns @ 256px = 16px per col */
+        /* 11 rows @ 176px = 16px per row */
+    }
+
+    #zelda.cave {
+        background: url("images/cave_map.png");
+    }
+
+    #zelda.dungeon {
+        background: url("images/dungeons_map.png");
+    }
+
+    #zelda.paused {
+        background: black url("images/inventory_background.png") no-repeat;
+        background-size: 81%;
+        /* TODO - sigh, important... need to fix this, the overworld map is inlining its position */
+        background-position-x: 17px !important;
+        background-position-y: 0 !important;
+    }
+
+    #controller {
+        position: absolute;
+        top: 232px;
+        height: 115px;
+        width: 256px;
+        background: url("images/controller.png");
+        background-size: 256px;
+    }
+
+    #debug {
+        position: absolute;
+        top: 350px;
+        font-family: monospace;
+    }
+    .hidden {
+        display: none;
+    }
+    #about {
+        position: absolute;
+        width: 256px;
+        text-align: center;
+        top: 220px;
+    }
+
+    #about a {
+        color: white;
+        text-decoration: underline;
+    }
+
+    #game-genie {
+        position: absolute;
+        top: -294px;
+        background: rgba(255, 255, 255, 0.87);
+        width: 256px;
+        height: 176px;
+        font-size: 10px;
+    }
+</style>
+<canvas id="menu" width="256" height="56"></canvas>
+<canvas id="zelda" width="256" height="176"></canvas>
+<canvas id="controller" width="256" height="115"></canvas>
+
+<div id="about" class="text hidden">
+</div>
+
+<span id="rupees" class="text"></span>
+<span id="keys" class="text"></span>
+<span id="bombs" class="text"></span>
+
+<div id="cave-text" class="text"></div>
+
+<img id="hud-icons" src="images/hud_icons.png" style="display: none;"/>
+<img id="b-a-boxes" src="images/b-a-boxes.png" style="display: none;"/>
+<img id="life-header" src="images/life.png" style="display: none;"/>
+<img id="controller-img" src="images/controller.png" style="display: none;"/>
+<img id="sword-img" src="images/sword.png" style="display: none;"/>
+<img id="full-heart" src="images/heart.png" style="display: none;"/>
+<img id="empty-heart" src="images/heart_empty.png" style="display: none;"/>
+
+<img id="cave-entrance" src="images/cave_entrance.png" style="display: none;"/>
+<img id="old-man" src="images/old_man.png" style="display: none;"/>
+<img id="merchant" src="images/merchant.png" style="display: none;"/>
+<img id="sword-item" src="images/sword.png" style="display: none;"/>
+
+<img id="rupee-one" src="images/rupee.gif" style="display: none;"/>
+<img id="rupee-five" src="images/rupee_five.png" style="display: none;"/>
+<img id="blue-candle" src="images/candle_blue.png" style="display: none;"/>
+<img id="key-item" src="images/key_item.png" style="display: none;"/>
+<img id="magic-shield" src="images/magic_shield.png" style="display: none;"/>
+
+<img id="cave-fire" src="images/cave_fire.gif" style="display: none;"/>
+<img id="cave-fire-1" src="images/cave_fire_1.gif" style="display: none;"/>
+
+<img src="images/overworld_map.png" style="display: none;"/>
+<img src="images/cave_map.png" style="display: none;"/>
+<img src="images/dungeons_map.png" style="display: none;"/>
+
+<img id="link-blink-up" src="" style="display: none;"/>
+<img id="link-blink-down" src="" style="display: none;"/>
+<img id="link-blink-left" src="" style="display: none;"/>
+<img id="link-blink-right" src="" style="display: none;"/>
+
+<img id="link-up-1" src="images/link/link_up/frame_000.gif" style="display: none;"/>
+<img id="link-up-2" src="images/link/link_up/frame_001.gif" style="display: none;"/>
+<img id="link-down-1" src="images/link/link_down/frame_000.gif" style="display: none;"/>
+<img id="link-down-2" src="images/link/link_down/frame_001.gif" style="display: none;"/>
+<img id="link-left-1" src="images/link/link_left/frame_000.gif" style="display: none;"/>
+<img id="link-left-2" src="images/link/link_left/frame_001.gif" style="display: none;"/>
+<img id="link-right-1" src="images/link/link_right/frame_000.gif" style="display: none;"/>
+<img id="link-right-2" src="images/link/link_right/frame_001.gif" style="display: none;"/>
+
+<!--LINK WALKING BACKWARDS-->
+<!--<img id="link-down-1" src="images/link/link_up/frame_000.gif" style="display: none;"/>-->
+<!--<img id="link-down-2" src="images/link/link_up/frame_001.gif" style="display: none;"/>-->
+<!--<img id="link-up-1" src="images/link/link_down/frame_000.gif" style="display: none;"/>-->
+<!--<img id="link-up-2" src="images/link/link_down/frame_001.gif" style="display: none;"/>-->
+<!--<img id="link-right-1" src="images/link/link_left/frame_000.gif" style="display: none;"/>-->
+<!--<img id="link-right-2" src="images/link/link_left/frame_001.gif" style="display: none;"/>-->
+<!--<img id="link-left-1" src="images/link/link_right/frame_000.gif" style="display: none;"/>-->
+<!--<img id="link-left-2" src="images/link/link_right/frame_001.gif" style="display: none;"/>-->
+
+<img id="sword-power-up" src="images/sword_power_up.png" style="display: none;"/>
+<img id="sword-power-up-flash" src="images/sword_power_up_flash.png" style="display: none;"/>
+<img id="sword-power-down" src="images/sword_power_down.png" style="display: none;"/>
+<img id="sword-power-down-flash" src="images/sword_power_down_flash.png" style="display: none;"/>
+<img id="sword-power-left" src="images/sword_power_left.png" style="display: none;"/>
+<img id="sword-power-left-flash" src="images/sword_power_left_flash.png" style="display: none;"/>
+<img id="sword-power-right" src="images/sword_power_right.png" style="display: none;"/>
+<img id="sword-power-right-flash" src="images/sword_power_right_flash.png" style="display: none;"/>
+
+<img id="sword-effect-1-tl" src="images/sword_effect/1_tl.png" style="display: none;"/>
+<img id="sword-effect-1-tr" src="images/sword_effect/1_tr.png" style="display: none;"/>
+<img id="sword-effect-1-bl" src="images/sword_effect/1_bl.png" style="display: none;"/>
+<img id="sword-effect-1-br" src="images/sword_effect/1_br.png" style="display: none;"/>
+<img id="sword-effect-2-tl" src="images/sword_effect/2_tl.png" style="display: none;"/>
+<img id="sword-effect-2-tr" src="images/sword_effect/2_tr.png" style="display: none;"/>
+<img id="sword-effect-2-bl" src="images/sword_effect/2_bl.png" style="display: none;"/>
+<img id="sword-effect-2-br" src="images/sword_effect/2_br.png" style="display: none;"/>
+
+<img id="red-moblin-down-1" src="images/red_moblin/down_1.png" style="display: none;"/>
+
+<img id="red-octorok-up-1" src="images/red_octorok/up_1.png" style="display: none;"/>
+<img id="red-octorok-up-2" src="images/red_octorok/up_2.png" style="display: none;"/>
+<img id="red-octorok-down-1" src="images/red_octorok/down_1.png" style="display: none;"/>
+<img id="red-octorok-down-2" src="images/red_octorok/down_2.png" style="display: none;"/>
+<img id="red-octorok-left-1" src="images/red_octorok/left_1.png" style="display: none;"/>
+<img id="red-octorok-left-2" src="images/red_octorok/left_2.png" style="display: none;"/>
+<img id="red-octorok-right-1" src="images/red_octorok/right_1.png" style="display: none;"/>
+<img id="red-octorok-right-2" src="images/red_octorok/right_2.png" style="display: none;"/>
+
+
+<img id="arrow-up" src="images/arrow_up.png" style="display: none;"/>
+<img id="arrow-down" src="images/arrow_down.png" style="display: none;"/>
+<img id="arrow-left" src="images/arrow_left.png" style="display: none;"/>
+<img id="arrow-right" src="images/arrow_right.png" style="display: none;"/>
+
+<img id="bomb" src="images/bomb.png" style="display: none;"/>
+<img id="boomerang" src="images/boomerang.png" style="display: none;"/>
+
+<img id="cloud-1" src="images/cloud_1.png" style="display: none;"/>
+<img id="cloud-2" src="images/cloud_2.png" style="display: none;"/>
+<img id="cloud-3" src="images/cloud_3.png" style="display: none;"/>
+
+<img id="sword-up" src="images/sword_up.png" style="display: none;"/>
+<img id="sword-down" src="images/sword_down.png" style="display: none;"/>
+<img id="sword-left" src="images/sword_left.png" style="display: none;"/>
+<img id="sword-right" src="images/sword_right.png" style="display: none;"/>
+
+<!--<audio controls autoplay="autoplay" loop="loop" hidden="hidden">-->
+<!--<source src="/zelda/sounds/overworld.mp3" type="audio/mpeg">-->
+<!--</audio>-->
+
+<div id="debug">
+    <a href="javascript:void(0);" id="toggle-game-genie">Toggle Game Genie</a>
+
+    <div id="game-genie" class="hidden">
+        <!--Link X: <span id="link-x"></span>-->
+        <!--Link Y: <span id="link-y"></span><br/>-->
+        <!--Tile X: <span id="link-x-square"></span>-->
+        <!--Tile Y: <span id="link-y-square"></span><br/>-->
+        <!--Map X: <span id="map-x"></span>-->
+        <!--Map Y: <span id="map-y"></span><br/>-->
+        Sword: <input type="checkbox" id="sword-checkbox"/>
+        Invincible: <input type="checkbox" id="invincible-checkbox"/><br/>
+        No Collision: <input type="checkbox" id="no-collision-checkbox"/>
+        Boomerang: <input type="checkbox" id="boomerang-checkbox"/><br/>
+        Blue Candle: <input type="checkbox" id="blue-candle-checkbox"/><br/>
+        Equip:
+        <select id="equip-select">
+            <option value="">-empty-</option>
+            <option value="Arrow">Arrow</option>
+            <option value="BlueCandle">Blue Candle</option>
+            <option value="Bomb">Bomb</option>
+            <option value="Boomerang">Boomerang</option>
+        </select><br/>
+        Speed: <input type="number" id="link-speed-input" min="1.3" max="5.0" step="0.1"/><br/>
+        Rupees: <input type="number" id="link-rupees-input" min="0" max="255" step="1"/>
+        Bombs: <input type="number" id="link-bombs-input" min="0" max="8" step="1"/><br/>
+
+    </div>
+</div>
+
+<script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-33217753-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function () {
+        var ga = document.createElement('script');
+        ga.type = 'text/javascript';
+        ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(ga, s);
+    })();
+</script>
+
+</body>
+</html>
