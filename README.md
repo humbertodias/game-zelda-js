@@ -2,6 +2,8 @@
 
 The classic action RPG game from the Nintendo Entertainment System. Take Link through an array of dungeons and fight monsters to collect all the pieces of the Triforce and save Princess Zelda. Works on mobile devices. Supports Nintendo USB gamepad.
 
+[Play](https://humbertodias.github.io/game-zelda-js/)
+
 ## Prerequiries
 
 1. Python 3+
