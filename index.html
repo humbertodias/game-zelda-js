@@ -7,9 +7,9 @@
     <title>The Legend of Zelda</title>
     <link href='http://fonts.googleapis.com/css?family=Press+Start+2P' rel='stylesheet' type='text/css'>
     <script src="/lib/jquery/jquery.min.js"></script>
-    <script src="/lib/jquery/jquery.mobile.custom.min.js"></script>
-    <script src="/zelda/jquery.timer.js"></script>
-    <script src="/lib/underscore/underscore-min.js"></script>
+    <script src="/lib/jquery/jquery.mobile.min.js"></script>
+    <script src="/lib/jquery/jquery.timer.js"></script>
+    <script src="/lib/underscore/underscore.min.js"></script>
     <script type="text/javascript" src="movement.js"></script>
     <script type="text/javascript" src="zelda.js"></script>
     <script type="text/javascript" src="output.min.js"></script>
@@ -246,11 +246,15 @@
 <img id="sword-left" src="images/sword_left.png" style="display: none;"/>
 <img id="sword-right" src="images/sword_right.png" style="display: none;"/>
 
-<!--<audio controls autoplay="autoplay" loop="loop" hidden="hidden">-->
-<!--<source src="/zelda/sounds/overworld.mp3" type="audio/mpeg">-->
-<!--</audio>-->
-
 <div id="debug">
+
+    <audio controls autoplay loop="loop">
+        <source src="/sounds/overworld.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <br>
+
     <a href="javascript:void(0);" id="toggle-game-genie">Toggle Game Genie</a>
 
     <div id="game-genie" class="hidden">
@@ -278,7 +282,10 @@
         Bombs: <input type="number" id="link-bombs-input" min="0" max="8" step="1"/><br/>
 
     </div>
+
+    
 </div>
+
 
 <script type="text/javascript">
     var _gaq = _gaq || [];

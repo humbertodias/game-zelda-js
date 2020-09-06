@@ -4,7 +4,7 @@ The classic action RPG game from the Nintendo Entertainment System. Take Link th
 
 ## Prerequiries
 
-1. Python 2+
+1. Python 3+
 2. Any WebBrowser
 
 ## How to Run
@@ -24,7 +24,7 @@ cd game-zelda-js
 Starting
 
 ```
-python -m SimpleHTTPServer
+python3 -m http.server
 ```
 
 On Browser
